@@ -214,10 +214,3 @@ Feedback link in the navbar
 - The admin page can be accessed using the route =/admin=
 - Used flask-admin to implement admin
 
-* Team memebrs
-- Sounak Pradhan
-- Arghya Bhattacharya
-- Mashrukh Islam
-- Bhanu Prakash JN
-* Team mentor
-- Aditya Baskar
