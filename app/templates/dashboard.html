@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home - {{ user.name.partition(' ')[0] }} - Cab Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+</head>
+<body>
+    <nav class="navbar sticky-top navbar-toggleable-md navbar-light bg-faded" style="background-color: #c4e187">
+        <a class="navbar-brand" href="#">
+            <img src="{{ url_for('static', filename='img/iiit-logo.gif') }}" style="height: 30px;" class="d-inline-block align-top" alt="">
+            IIIT-H Cab Portal
+        </a>
+        <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('users.dashboard') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('entries.upcoming') }}">Upcoming</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('entries.history') }}">History</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('feedbacks.feedback') }}">Feedback</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('users.user_details') }}">User</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('users.logout') }}">Logout</a>
+                </li>
+            </ul>
+            <span class="navbar-text">
+                {{ user.name }}
+            </span>
+        </div>
+    </nav>
+
+    <div class="jumbotron jumbotron-fluid" style="background-color: #c4e187; padding-top: 2em">
+        <h1 class="text-center">Hey! {{ user.name.partition(' ')[0] }}, just fill in these details and we will find you a car pool.</h1>
+        <form class="form-inline" onsubmit="return false;">
+            <div class="input-group" style="margin: 2em auto 0 auto;width: 50%">
+                <div class="input-group-addon form-control-lg">Location</div>
+                <input class="form-control form-control-lg" type="text" placeholder="you want to go or want to come from" id="txtPlaces">
+            </div>
+        </form>
+    </div>
+    <div class="col-6 offset-3">
+        <form onsubmit="return false" style="margin-bottom: 2em">
+            <div class="form-group row">
+                <label for="name" class="col-3 col-form-label">Name</label>
+                <div class="col-9">
+                    <input type="text" class="form-control" id="name" value="{{ user.name }}" readonly="readonly">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="email" class="col-3 col-form-label">Email address</label>
+                <div class="col-9">
+                    <input type="email" class="form-control" id="email" value="{{ user.email }}" readonly="readonly">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="phone" class="col-3 col-form-label">Phone</label>
+                <div class="col-9">
+                    <input type="text" class="form-control" id="phone" value="{{ user.phone }}">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="date" class="col-3 col-form-label">Form/To IIIT-H</label>
+                <div class="col-4">
+                    <label class="form-check-label">
+                        <input class="form-check-input fromto" name="fromto" type="radio" value="from" checked="checked">
+                        From IIIT-H
+                    </label>
+                </div>
+                <div class="col-3">
+                    <label class="form-check-label">
+                        <input class="form-check-input fromto" name="fromto" type="radio" value="to">
+                        To IIIT-H
+                    </label>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="date" class="col-3 col-form-label">Date of travel</label>
+                <div class="col-9">
+                    <input class="form-control" type="date" id="date" value="2017-01-01">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="time" class="col-3 col-form-label">Time of travel</label>
+                <div class="col-9">
+                    <input class="form-control" type="time" value="00:00" id="time">
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="numberofpeople" class="col-3 col-form-label">Number of people</label>
+                <div class="col-9">
+                    <select class="form-control" id="numberofpeople">
+                        <option value="1" selected="selected">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="otherinfo" class="col-3 col-form-label">Other Information</label>
+                <div class="col-9">
+                    <textarea class="form-control" id="otherinfo" rows="5"></textarea>
+                </div>
+            </div>
+            <div class="row" id="error-msg" style="margin-top: 1em; display: none;">
+                <div class="col-9 offset-3">
+                    <div class="alert alert-danger" role="alert">
+                        <strong>Oh snap!</strong> Enter valid details and then submit again.
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-9 offset-3">
+                    <button type="submit" id="submit" class="btn btn-success" style="width: 100%;">Find a match</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyC1lizWXXe8kyreskpjn27PNzyhthCl7f8&libraries=places"></script>
+    <script type="text/javascript">
+        var latitude, longitude, address;
+        google.maps.event.addDomListener(window, 'load', function () {
+            var options = {
+                componentRestrictions: {country: "ind"}
+            };
+            var places = new google.maps.places.Autocomplete(document.getElementById('txtPlaces'), options);
+            google.maps.event.addListener(places, 'place_changed', function () {
+                var place = places.getPlace();
+                address = place.formatted_address;
+                latitude = place.geometry.location.lat();
+                longitude = place.geometry.location.lng();
+            });
+        });
+    </script>
+    <script>
+        var date = new Date().toJSON();
+        document.getElementById("date").value = date.slice(0,10);
+        var hour = (parseInt(date.slice(11,13))+5)%24;
+        if (hour.toString().length < 2) hour = '0' + hour.toString();
+        else hour = hour.toString();
+        var minute = (parseInt(date.slice(14,16))+30)%60;
+        if (minute.toString().length < 2) minute = '0' + minute.toString();
+        else minute = minute.toString();
+        document.getElementById("time").value = hour+':'+minute;
+    </script>
+    <script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tether.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script>
+         $('#submit').on('click', function () {
+             $.ajax({
+                 url: '{{ url_for('entries.add_entry') }}',
+                 type: 'POST',
+                 data: {
+                     fromto: $('.fromto:checked').val(),
+                     latitude: latitude,
+                     longitude: longitude,
+                     address: address,
+                     num: $('#numberofpeople').val(),
+                     datetime: $('#date').val()+' '+$('#time').val(),
+                     info: $('#otherinfo').val()
+                 },
+                 success: function(response) {
+                     console.log($('#date').val()+' '+$('#time').val().slice(0,5))
+                     if(response.status == true) {
+                         window.location = '{{ url_for('entries.upcoming') }}'
+                     }
+                     else {
+                         console.log(response);
+                         $('#error-msg').show();
+                     }
+                 }
+             });
+         });
+    </script>
+</body>
+</html>

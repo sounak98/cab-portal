@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upcoming - {{ user.name.partition(' ')[0] }} - Cab Portal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+</head>
+<body>
+    <nav class="navbar sticky-top navbar-toggleable-md navbar-light bg-faded" style="background-color: #c4e187; margin-bottom: 0">
+        <a class="navbar-brand" href="#">
+            <img src="{{ url_for('static', filename='img/iiit-logo.gif') }}" style="height: 30px;" class="d-inline-block align-top" alt="">
+            IIIT-H Cab Portal
+        </a>
+        <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('users.dashboard') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" href="{{ url_for('entries.upcoming') }}">Upcoming</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('entries.history') }}">History</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('feedbacks.feedback') }}">Feedback</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('users.user_details') }}">User</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('users.logout') }}">Logout</a>
+                </li>
+            </ul>
+            <span class="navbar-text">
+                {{ user.name }}
+            </span>
+        </div>
+    </nav>
+    {% if entries|length != 0 %}
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th style="width: 3%; text-align: center;">#</th>
+                <th style="width: 35%; text-align: center;">To</th>
+                <th style="width: 35%; text-align: center;">From</th>
+                <th style="width: 5%; text-align: center;">Number</th>
+                <th style="width: 11%; text-align: center;">Date</th>
+                <th style="width: 11%; text-align: center;">Time</th>
+                <th style="width: 11%; text-align: center;">Matches</th>
+                <th style="width: 11%; text-align: center;">Confirmation</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for entry in entries|sort(attribute='time_of_travel', reverse=True) %}
+                    <tr>
+                        <th scope="row" style="text-align: center;">{{ loop.index }}</th>
+                        <td>{{ entry.end }}</td>
+                        <td>{{ entry.start }}</td>
+                        <td style="text-align: center;">{{ entry.no_of_pass }}</td>
+                        <td style="text-align: center;">{{ entry.time_of_travel.strftime('%d %h %Y') }}</td>
+                        <td style="text-align: center;">{{ entry.time_of_travel.strftime('%I:%M %p') }}</td>
+                        <td class="align-middle text-center" onclick="window.location='{{ url_for('entries.matches') }}?id={{ entry.id }}'"><button type="button" class="btn btn-info">Matches</button></td>
+                        <td class="align-middle text-center" onclick="confirmed({{ entry.id }});"><button type="button" class="btn btn-success">Confirmed</button></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <h4 class="text-center" style="margin-top: 1em;">No upcoming rides</h4>
+    {% endif %}
+
+    <script>
+        function confirmed(id) {
+            $.ajax({
+                 url: '{{ url_for('entries.confirmed') }}',
+                 type: 'POST',
+                 data: {
+                     id: id
+                 },
+                 success: function() {
+                     window.location='{{ url_for('entries.upcoming') }}'
+                 }
+             });
+        }
+    </script>
+
+    <script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/tether.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+</body>
+</html>

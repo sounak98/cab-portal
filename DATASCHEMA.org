@@ -1,0 +1,223 @@
+#+TITLE: Data Schema
+#+AUTHOR: Sounak Pradhan, Arghya Bhattacharya, Mashrukh Islam, Bhanu Prakash JN
+#+EMAIL: sounak.pradhan@research.iiit.ac.in, arghya.b@research.iiit.ac.in, mashrukh.islam@research.iiit.ac.in
+
+* Relational Models
+** User Model
+This model is for the users who will use this web-app.
+| Id        | Integer | Primary Key, Autoincrement | An unique id for each user          |
+| Name      | String  | Unique                     | Name of the user                    |
+| Email     | String  | Non Nullable               | Email of the user                   |
+| Phone     | Integer | Non Nullable               | Phone number of the user            |
+| Password  | String  | Non Nullable               | Hashed password                     |
+| Entries   | List    | Non Nullable               | All the entries of the user         |
+| Feedbacks | List    | Non Nullable               | All the feedbacks given by the user |
+
+** Entry Model
+This is a model for the table which stores every entry and maps them to the respective users who have created thise entries.
+| Id             | Integer  | Primary Key, Autoincrement | An unique id for each entry               |
+| Start_lon      | Float    | Non Nullable               | Starting longitude                        |
+| Start_lat      | Float    | Non Nullable               | Starting latitude                         |
+| End_lon        | Float    | Non Nullable               | Ending longitude                          |
+| End_lat        | Float    | Non Nullable               | Enging latitude                           |
+| Start          | String   | Non Nullable               | Start                                     |
+| End            | String   | Non Nullable               | End                                       |
+| No_of_pass     | Integer  | Non Nullable               | No of passengers                          |
+| Other_info     | String   | Nullable                   | Other information provided by user        |
+| Done_or_not    | Boolean  | Non Nullable               | True/False according to user confirmation |
+| Time_of_travel | DateTime | Non Nullable               | Time of travel                            |
+| User_id        | Integer  | Foreign Key                | User id of the creator of entry           |
+
+** Feedback Model
+This is a model for the table which stores every feedback issued by the users
+| Id      | Integer | Primary Key, Autoincrement  | Unique id             |
+| User_id | Integer | Foreign Key                 | Id of user who issued |
+| Content | String  | Non Nullable                | Content               |
+
+* Routes and corresponding Jinja2 files (if applicable)
+** User routes
+*** =/register= /POST/, /GET/
+- Registers an user
+- Opens the register page (=register.html=)
+
+*** =/login= /POST/, /GET/
+- Logs an user in 
+- Opens login page (=login.html=)
+
+*** =/logout= /GET/
+- To log out from the account
+
+*** =/dashboard= /GET/
+- To open the dashboard of the user (=dashboard.html=)
+
+*** =/change-password= /POST/
+- To change the password of the user who is logged in
+
+*** =/user-details= /GET/
+- To open the user data page (=user.html=)
+
+** Entry routes
+*** =/addEntry= /POST/
+- To add an entry
+
+*** =/history= /GET/
+- To view the history of entries created by the user logged in (=history.html=)
+
+*** =/upcoming= /GET/
+- To view the upcoming entries (=upcoming.html=)
+
+*** =/matches= /GET/
+- To search for matches and display them in a page (=matches.html=)
+
+*** =/confirmed= /POST/
+- To mark an entry confirmed
+
+** Feedback routes
+*** =/addFeedback= /POST/
+- To add a new feedback
+
+*** =/feedback= /GET/
+- To open the feedback page (=feedback.html=)
+
+* Login
+- Used flask-login
+- Session handling using flask-login
+- current_user to keep track of current user
+
+* Security Feature
+- Usage of hashed passwords
+- Avoids web vulnerabilities (eg. SQL Injection)
+
+* Frameworks used
+- Flask
+- Bootstrap
+- jQuery
+
+* Directory structure
+.
+
+├── DATASCHEMA.org
+
+├── README.md
+
+├── app
+
+│   ├── __init__.py
+
+│   ├── entries
+
+│   │   ├── __init__.py
+
+│   │   ├── controllers.py
+
+│   │   └── models.py
+
+│   ├── feedbacks
+
+│   │   ├── __init__.py
+
+│   │   ├── controllers.py
+
+│   │   └── models.py
+
+│   ├── static
+
+│   │   ├── css
+
+│   │   │   └── bootstrap.min.css
+
+│   │   ├── img
+
+│   │   │   ├── cab-1.jpg
+
+│   │   │   ├── iiit-logo.gif
+
+│   │   │   └── search.png
+
+│   │   └── js
+
+│   │       ├── bootstrap.min.js
+
+│   │       ├── jquery-3.2.1.min.js
+
+│   │       └── tether.min.js
+
+│   ├── templates
+
+│   │   ├── 404.html
+
+│   │   ├── admin.html
+
+│   │   ├── dashboard.html
+
+│   │   ├── feedback.html
+
+│   │   ├── history.html
+
+│   │   ├── index.html
+
+│   │   ├── login.html
+
+│   │   ├── matches.html
+
+│   │   ├── register.html
+
+│   │   ├── upcoming.html
+
+│   │   └── user.html
+
+│   └── users
+
+│       ├── __init__.py
+
+│       ├── controllers.py
+
+│       └── models.py
+
+├── app.db
+
+├── config.py
+
+└── run.py
+
+* Matching algorithm
+- The time of travel of the matches must be in 1 hour span
+- The distance of the source (in case of travelling to IIIT) and the destination (in case of travelling from IIIT) must be within 3 kms radius
+- The total number of passengers must be less than or equal to 4
+
+* Instructions
+** Registering an user
+Click on Register button in index page and then register the user
+
+** Logging in
+Click on Login button in the index page and then log yourself in
+
+** Making an entry
+After logging in you can make an entry in the dashboard itself
+
+** Checking upcoming entries
+Click on the upcoming link in the navbar
+
+** Mark an upoming entry confirmed
+Clcik on the confirmed button beside the entry in the upcoming page
+
+** Check for matches
+Click on the mathes button beside the entry in the upcoming page
+
+** Check history
+Click on history link in navbar
+
+** To issue a feedback
+Feedback link in the navbar
+
+* Admin page
+- The admin page can be accessed using the route =/admin=
+- Used flask-admin to implement admin
+
+* Team memebrs
+- Sounak Pradhan
+- Arghya Bhattacharya
+- Mashrukh Islam
+- Bhanu Prakash JN
+* Team mentor
+- Aditya Baskar
